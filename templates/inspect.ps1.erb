@@ -40,6 +40,10 @@ if (($pfx -ne $null) -and ($installedCerts -ne $null) -and ($intermediateCerts -
             foreach ($installedCert in $installedCerts) {
                 if($installedCert.Thumbprint -eq $cert.Thumbprint) {
                     $installedCertCount ++
+                    
+                    if($installedCert.PrivateKey.CspKeyContainerInfo.MachineKeyStore -eq $false) {
+                        exit 0
+                    }
                 }
             }
         }
