@@ -25,14 +25,17 @@ $store.open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite
 $intermediatestore = new-object System.Security.Cryptography.X509Certificates.X509Store("CA","<%= @root_store %>")
 $intermediatestore.open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
 
-# Look for existing installed certificates that might need replacement, based of same CA
+# Look for existing installed certificates that might need replacement, based of same CN
 $installedCerts = @(Get-ChildItem -R cert:\<%= @root_store %>\<%= @store_dir %>)
 
 foreach($cert in $pfx) {
 
-  foreach($installedCert in $installedCerts) {
-     if (($($installedCert.Subject.Split(', ')[0]) -eq $($cert.Subject.Split(', ')[0])) -and ($installedCert.Thumbprint -ne $cert.Thumbprint ) ) {
-        Remove-Item -R "cert:\<%= @root_store %>\<%= @store_dir %>\$($installedCert.Thumbprint)"
+  if ($installedCerts) {
+     foreach($installedCert in $installedCerts) {
+        if (($($installedCert.Subject.Split(',')[0]) -eq $($cert.Subject.Split(',')[0])) -and ($installedCert.Thumbprint -ne $cert.Thumbprint ) ) 
+        {
+           Remove-Item -R "cert:\<%= @root_store %>\<%= @store_dir %>\$($installedCert.Thumbprint)"
+        }
      }
   }
 
